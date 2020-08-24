@@ -1,65 +1,104 @@
+import React, { useContext } from 'react';
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
+import { AgGridReact } from 'ag-grid-react';
+import Header from '../components/header';
+import Toolbar from '../components/toolbar';
+import GridContext from '../gridContext';
+import CustomDateComponent from '../components/customDate';
+
+const initData = {
+  colDefs: [
+    {
+      headerName: "Name",
+      field: "make",
+      cellRenderer: 'agGroupCellRenderer',
+      checkbox: true,
+      cellRendererParams: {
+        suppressCount: true,
+        suppressDoubleClickExpand: true,
+        checkbox: true,
+      }
+    }, {
+      headerName: "Date Created",
+      field: "date",
+      filterParams: {
+        comparator: function (filterLocalDateAtMidnight, cellValue) {
+          var dateAsString = cellValue;
+          var dateParts = dateAsString.split('/');
+          var cellDate = new Date(
+            Number(dateParts[2]),
+            Number(dateParts[1]) - 1,
+            Number(dateParts[0])
+          );
+
+          if (filterLocalDateAtMidnight.getTime() === cellDate.getTime()) {
+            return 0;
+          }
+
+          if (cellDate < filterLocalDateAtMidnight) {
+            return -1;
+          }
+
+          if (cellDate > filterLocalDateAtMidnight) {
+            return 1;
+          }
+        },
+      },
+    }, {
+      headerName: "Fund Name", field: "price"
+    }, {
+      headerName: "Due Date", field: "price"
+    }, {
+      headerName: "Price", field: "price"
+    }
+  ],
+  rowData: [{
+    make: "Init data Test document A",
+    date: "24/08/2008",
+    price: 35000
+  }, {
+    make: "Ford", model: "Mondeo", price: 32000
+  }, {
+    make: "Porsche", model: "Boxter", price: 72000
+  }],
+  gridOptions: {
+    defaultColDef: {
+      editable: true,
+      flex: 1,
+      minWidth: 100,
+    },
+    components: {
+      agDateInput: CustomDateComponent
+    }
+  }
+}
 
 export default function Home() {
+  const gridData = useContext(GridContext);
   return (
     <div className={styles.container}>
       <Head>
         <title>Create Next App</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+      <Header></Header>
+      <GridContext.Provider value={gridData}>
+        <Toolbar></Toolbar>
+        <section className={styles.homeSection}>
+          <span className="test">{gridData.gridData}</span>
+          <main className={styles.main}>
+            <div className="ag-theme-alpine-dark"
+              style={{ height: '30vh', minWidth: '100%' }}>
+              <AgGridReact
+                gridOptions={gridData.gridOptions} 
+                columnDefs={gridData.colDefs} 
+                rowData={gridData.rowData}>
+              </AgGridReact>
+            </div>
+          </main>
+        </section>
+      </GridContext.Provider>
     </div>
   )
 }
