@@ -2,7 +2,7 @@ import React from 'react';
 import CustomDateComponent from './components/customDate';
 import { currencyFormatter, dateFormatter } from './common/formatter';
 
-const GridContext = React.createContext({
+const GridContext = React.createContext({ 
     colDefs: [
         {
             headerName: "Name",
@@ -16,35 +16,17 @@ const GridContext = React.createContext({
             }
         }, {
             headerName: "Date Created",
-            field: "date",
+            field: "created",
             valueFormatter: dateFormatter,
             editable: false,
         }, {
-            headerName: "Fund Name", field: "fundName"
+            headerName: "Fund Name", field: "data.fund_name.text"
         }, {
-            headerName: "Due Date", field: "date"
+            headerName: "Due Date", field: "data.due_date.text"
         }, {
-            headerName: "Price", field: "price",
-            valueFormatter: currencyFormatter
+            headerName: "Price", field: "data.price.text",
         }
     ],
-    rowData: [{
-        name: "Test document A",
-        date: "24/08/2008",
-        fundName: "Sequoia Capital",
-        price: 6
-    }, {
-        name: "Test Document B",
-        date: "24/08/2008",
-        fundName: "Blackrock",
-        price: 16
-    }, {
-        name: "Test Document C",
-        date: "24/08/2008",
-        model: "Boxter",
-        fundName: "Soft Capital",
-        price: 56
-    }],
     gridOptions: {
         defaultColDef: {
             editable: true,
